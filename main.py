@@ -111,7 +111,6 @@ def bfs(adj: List[List[int]], dist: List[List[int]], state: State, t_a: int, t_b
 
 
 if __name__ == "__main__":
-    time_begin: float = perf_counter()
     path = "testcases/grid10-0-randomized.in"
 
     with open(path, "r") as file:
@@ -134,6 +133,7 @@ if __name__ == "__main__":
             adj[a].append(b)
             adj[b].append(a)
 
+    time_begin: float = perf_counter()
     dist: List[List[int]] = bfs_dist(adj)
 
     found, steps, path = bfs(adj, dist, State(s_a, s_b, 0, None), t_a, t_b)

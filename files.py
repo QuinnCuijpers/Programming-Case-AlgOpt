@@ -4,6 +4,10 @@ from dataclasses import dataclass
 from time import perf_counter
 from glob import glob
 
+"""
+File to check if all .in files that find a solution have the correct min distance. DO NOT RUN AGAIN as it takes an hour
+"""
+
 
 # O(1) should be as none of this depends on the input size
 @dataclass
@@ -58,8 +62,6 @@ def backtrack(s: State) -> List[tuple[int, int]]:
         path.append((prev.pos_a + 1, prev.pos_b + 1))
         curr = prev
 
-    print(len(path))
-
     # all even pos in the path
     if len(path) % 2 == 1:
         path = [pos for i, pos in enumerate(path) if i % 2 == 0]
@@ -99,7 +101,7 @@ def bfs(adj: List[List[int]], dist: List[List[int]], state: State, t_a: int, t_b
         s: State = queue.popleft()
         if s.pos_a == t_a and s.pos_b == t_b:
             found = True
-            best_t = s.t
+            best_t = min(s.t, best_t)
             end_state: State = s
             break
         if s.t >= T:
@@ -129,44 +131,47 @@ def bfs(adj: List[List[int]], dist: List[List[int]], state: State, t_a: int, t_b
 
 
 if __name__ == "__main__":
-
-    path = "testcases/grid10-2.in"
-
-    with open(path, "r") as file:
-        line1 = file.readline().split(" ")
-        n, m, T, D = tuple(map(int, line1))
-
-        adj: List[List[int]] = [[] for _ in range(n)]
-        line2 = file.readline().split(" ")
-        s_a, t_a, s_b, t_b = tuple(map(int, line2))
-        s_a -= 1
-        t_a -= 1
-        s_b -= 1
-        t_b -= 1
-        for _ in range(m):
-            a, b = tuple(map(int, file.readline().split(" ")))
-            # to go from 1 based indexing to 0 based
-            a -= 1
-            b -= 1
-
-            adj[a].append(b)
-            adj[b].append(a)
-
     time_begin: float = perf_counter()
-    dist: List[List[int]] = bfs_dist(adj)
+    paths: list[str] = glob("testcases/*.in")
 
-    found, steps, path = bfs(adj, dist, State(s_a, s_b, 0, None, True), t_a, t_b)
+    for path in paths:
 
-    time_end: float = perf_counter()
-    time: float = time_end - time_begin
+        with open(path, "r") as file:
+            line1 = file.readline().split(" ")
+            n, m, T, D = tuple(map(int, line1))
 
-    if found:
-        print(steps)
-        print(" ".join(str(t[0]) for t in path))
-        print(" ".join(str(t[1]) for t in path))
-        print(f"{time:.2f} seconds")
-    else:
-        print(T + 1)
-        print(f"{time:.2f} seconds")
+            adj: List[List[int]] = [[] for _ in range(n)]
+            line2 = file.readline().split(" ")
+            s_a, t_a, s_b, t_b = tuple(map(int, line2))
+            s_a -= 1
+            t_a -= 1
+            s_b -= 1
+            t_b -= 1
+            for _ in range(m):
+                a, b = tuple(map(int, file.readline().split(" ")))
+                # to go from 1 based indexing to 0 based
+                a -= 1
+                b -= 1
 
-    print(check(steps, path))
+                adj[a].append(b)
+                adj[b].append(a)
+
+        dist: List[List[int]] = bfs_dist(adj)
+
+        found, steps, path = bfs(adj, dist, State(s_a, s_b, 0, None, True), t_a, t_b)
+
+        time_end: float = perf_counter()
+        time: float = time_end - time_begin
+
+        # if found:
+        #     print(steps)
+        #     print(" ".join(str(t[0]) for t in path))
+        #     print(" ".join(str(t[1]) for t in path))
+        #     print(f"{time:.2f} seconds")
+        # else:
+        #     print(T + 1)
+        #     print(f"{time:.2f} seconds")
+
+        if found:
+            if not check(steps, path):
+                print(file.name)
