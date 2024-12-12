@@ -71,9 +71,14 @@ def backtrack(s: State) -> List[tuple[int, int]]:
     return path[::-1]  # O(n) for reversal of list
 
 
-def check(value, path) -> bool:
+def check(value, path, file) -> bool:
 
-    if value != len(path) - 1:
+    file = file[0:-3] + ".out"
+
+    with open(file, "r") as f:
+        true_value = int(f.readline())
+
+    if value != true_value:
         return False
 
     # decrementation happens to go back to 0 indexing
@@ -101,8 +106,14 @@ def bfs(adj: List[List[int]], dist: List[List[int]], state: State, t_a: int, t_b
         s: State = queue.popleft()
         if s.pos_a == t_a and s.pos_b == t_b:
             found = True
-            best_t = min(s.t, best_t)
-            end_state: State = s
+            end_state: State
+
+            if not s.A_to_move:
+                end_state = State(t_a, t_b, s.t + 1, s, True)
+                best_t = s.t + 1
+            else:
+                end_state = s
+                best_t = s.t
             break
         if s.t >= T:
             break
@@ -113,7 +124,6 @@ def bfs(adj: List[List[int]], dist: List[List[int]], state: State, t_a: int, t_b
                 if State(next_a, b, s.t + 1, s, False) not in visited:
                     new_state_A: State = State(next_a, b, s.t, s, False)
                     queue.append(new_state_A)
-                    visited.add(new_state_A)
 
         else:
             for next_b in [b] + adj[b]:
@@ -133,6 +143,8 @@ def bfs(adj: List[List[int]], dist: List[List[int]], state: State, t_a: int, t_b
 if __name__ == "__main__":
     time_begin: float = perf_counter()
     paths: list[str] = glob("testcases/*.in")
+
+    print(len(paths))
 
     for path in paths:
 
@@ -173,5 +185,5 @@ if __name__ == "__main__":
         #     print(f"{time:.2f} seconds")
 
         if found:
-            if not check(steps, path):
+            if not check(steps, path, file.name):
                 print(file.name)

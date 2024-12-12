@@ -58,7 +58,7 @@ def backtrack(s: State) -> List[tuple[int, int]]:
         path.append((prev.pos_a + 1, prev.pos_b + 1))
         curr = prev
 
-    print(len(path))
+    print((path))
 
     # all even pos in the path
     if len(path) % 2 == 1:
@@ -99,8 +99,15 @@ def bfs(adj: List[List[int]], dist: List[List[int]], state: State, t_a: int, t_b
         s: State = queue.popleft()
         if s.pos_a == t_a and s.pos_b == t_b:
             found = True
-            best_t = s.t
-            end_state: State = s
+            end_state: State
+
+            if not s.A_to_move:
+                print("hit")
+                end_state = State(t_a, t_b, s.t + 1, s, True)
+                best_t = s.t + 1
+            else:
+                end_state = s
+                best_t = s.t
             break
         if s.t >= T:
             break
@@ -110,8 +117,8 @@ def bfs(adj: List[List[int]], dist: List[List[int]], state: State, t_a: int, t_b
             for next_a in [a] + adj[a]:
                 if State(next_a, b, s.t + 1, s, False) not in visited:
                     new_state_A: State = State(next_a, b, s.t, s, False)
-                    queue.append(new_state_A)
                     visited.add(new_state_A)
+                    queue.append(new_state_A)
 
         else:
             for next_b in [b] + adj[b]:
@@ -121,6 +128,9 @@ def bfs(adj: List[List[int]], dist: List[List[int]], state: State, t_a: int, t_b
                         queue.append(new_state_B)
                         visited.add(new_state_B)
 
+    for state in visited:
+        if state.pos_a == 17 and state.pos_b == 34:
+            print(f" reached ({state.pos_a}, {state.pos_b}) at time {state.t}")
     if found:
         path: List[tuple[int, int]] = backtrack(end_state)
         return True, best_t, path
@@ -130,7 +140,7 @@ def bfs(adj: List[List[int]], dist: List[List[int]], state: State, t_a: int, t_b
 
 if __name__ == "__main__":
 
-    path = "testcases/grid10-2.in"
+    path = "testcases/grid25-4-randomized.in"
 
     with open(path, "r") as file:
         line1 = file.readline().split(" ")
@@ -161,11 +171,13 @@ if __name__ == "__main__":
     time: float = time_end - time_begin
 
     if found:
+        print()
         print(steps)
         print(" ".join(str(t[0]) for t in path))
         print(" ".join(str(t[1]) for t in path))
         print(f"{time:.2f} seconds")
     else:
+        print()
         print(T + 1)
         print(f"{time:.2f} seconds")
 
