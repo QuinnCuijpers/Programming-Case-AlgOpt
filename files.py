@@ -5,7 +5,8 @@ from time import perf_counter
 from glob import glob
 
 """
-File to check if all .in files that find a solution have the correct min distance. DO NOT RUN AGAIN as it takes an hour
+File to check if all .in files that find a solution (yes-instance) has the correct amount of steps.
+checks every file, so can take a while to run.
 """
 
 
@@ -19,10 +20,14 @@ class State:
     A_to_move: bool
 
     def __hash__(self) -> int:
-        return hash(tuple({self.pos_a, self.pos_b}))
+        return hash(tuple((self.pos_a, self.pos_b)))
 
     def __eq__(self, other) -> bool:
-        return self.pos_a == other.pos_a and self.pos_b == other.pos_b
+        return (
+            self.pos_a == other.pos_a
+            and self.pos_b == other.pos_b
+            and self.A_to_move == other.A_to_move
+        )
 
     def __repr__(self) -> str:
         return f"({self.pos_a}, {self.pos_b}) at time {self.t}"
@@ -123,6 +128,7 @@ def bfs(adj: List[List[int]], dist: List[List[int]], state: State, t_a: int, t_b
             for next_a in [a] + adj[a]:
                 if State(next_a, b, s.t + 1, s, False) not in visited:
                     new_state_A: State = State(next_a, b, s.t, s, False)
+                    visited.add(new_state_A)
                     queue.append(new_state_A)
 
         else:
@@ -146,7 +152,7 @@ if __name__ == "__main__":
 
     print(len(paths))
 
-    for path in paths:
+    for i, path in enumerate(paths):
 
         with open(path, "r") as file:
             line1 = file.readline().split(" ")
@@ -187,3 +193,5 @@ if __name__ == "__main__":
         if found:
             if not check(steps, path, file.name):
                 print(file.name)
+            else:
+                print(f"{((i+1)/len(paths))*100:.2f}% there")
