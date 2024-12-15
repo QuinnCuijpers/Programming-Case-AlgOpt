@@ -199,4 +199,4 @@ if __name__ == "__main__":
         print(T + 1)
         print(f"{time:.2f} seconds")
 
-    print(check(steps, path))
+
