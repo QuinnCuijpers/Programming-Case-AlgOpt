@@ -122,7 +122,7 @@ def bfs(adj: List[List[int]], dist: List[List[int]], state: State, t_a: int, t_b
                 best_t = s.t
             break
 
-        # if a state is already in time T than there will be a solution with less than T steps
+        # if a state is already in time T then there will be no solution with less than T steps
         if s.t >= T:
             break
         a, b = s.pos_a, s.pos_b
